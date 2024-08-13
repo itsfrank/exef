@@ -1,6 +1,6 @@
 # search for exe name recursively, if one founf exec, if many fzf then exec
 # usage: exef [--load] [--save] <name> <path>
-exef_2() {
+exef() {
     local positional_args=()
     local arg_load=false
     local arg_save=false
