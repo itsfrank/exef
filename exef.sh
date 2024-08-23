@@ -121,14 +121,12 @@ exef() {
         mv -f "$cache_file.tmp" "$cache_file"
     fi
 
-    local exe_command="$selected_exe $forward_args"
 
-    echo "checking dr"
     if [[ $arg_dryrun == true ]]; then
-        echo "from dryrun"
+        local exe_command="$selected_exe ${forward_args[@]}"
         echo "$exe_command"
         return 0
     else
-        $exe_command
+        $selected_exe ${forward_args[@]}
     fi
 }
