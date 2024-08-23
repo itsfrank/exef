@@ -2,26 +2,45 @@
 # usage: exef [--load] [--save] <name> <path>
 exef() {
     local positional_args=()
+    local forward_args=()
     local arg_load=false
     local arg_save=false
+    local arg_dryrun=false
+
     # arg parse
+    local forwarding=false
     while (( $# > 0 )); do
-        case $1 in
-            --help)
-                echo "Usage: $0 [--load] [--save] <pattern> [<path>]"
-                exit 0
-                ;;
-            --load)
-                arg_load=true
-                ;;
-            --save)
-                arg_save=true
-                ;;
-            *)
-                # append positional args
-                positional_args+=("$1")
-                ;;
-        esac
+        if [[  "$1" == "--"  ]]; then
+            forwarding=true # Enable forwarding
+            shift # Skip the '--' itself
+            continue
+        fi
+
+        if [ "$forwarding" = true ]; then
+            # Append to forward_args if forwarding is enabled
+            forward_args+=("$1")
+        else
+            # Process script arguments
+            case $1 in
+                --help)
+                    echo "Usage: exef [--load] [--save] [--dryrun] <pattern> [<path>] [--] <forward args ...>"
+                    return 0
+                    ;;
+                --load)
+                    arg_load=true
+                    ;;
+                --save)
+                    arg_save=true
+                    ;;
+                --dryrun)
+                    arg_dryrun=true
+                    ;;
+                *)
+                    # append positional args
+                    positional_args+=("$1")
+                    ;;
+            esac
+        fi
         shift # Move to the next argument
     done
 
@@ -102,5 +121,14 @@ exef() {
         mv -f "$cache_file.tmp" "$cache_file"
     fi
 
-    $selected_exe
+    local exe_command="$selected_exe $forward_args"
+
+    echo "checking dr"
+    if [[ $arg_dryrun == true ]]; then
+        echo "from dryrun"
+        echo "$exe_command"
+        return 0
+    else
+        $exe_command
+    fi
 }
